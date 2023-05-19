@@ -11,7 +11,7 @@ import { BotCard } from './components/BotCard'
 
 
 function App() {
-  const [list, setList] = useState<ListType[]>([])
+  const [list, setList] = useState<ListType[]>(JSON.parse(localStorage.getItem('list') || '') || [])
 
   const addBot = (formData: any) => {
     if (!formData.name) {
@@ -47,9 +47,11 @@ function App() {
   const getBotDetails = (id: number) => {
     return list.filter(item => item.id !== id) || {}
   }
+  
 
   useEffect(() => {
-    console.log('list test', list)
+    // save to localstorage
+      localStorage.setItem('list', JSON.stringify(list))
   }, [list])
 
   return (
@@ -60,13 +62,12 @@ function App() {
           <BotForm handleAdd={addBot} />
         </StyledForm>
         <StyledList>
-          {/* <FlexContainer> */}
             {list && list.map(data => (
               <div style={{width: '100%'}}>
                 <BotCard listData={data} handleDelete={removeBot} />
               </div>
             ))}
-          {/* </FlexContainer> */}
+            {list.length < 1 && (<StyledHeading>No data to show</StyledHeading>)}
         </StyledList>
       </StyledContainer>
     </>
@@ -113,7 +114,8 @@ const StyledList = styled.div`
 
 `
 
-const FlexContainer = styled.div`
-  display:flex;
+const StyledHeading = styled.h2`
+  color: white
 `
+
 

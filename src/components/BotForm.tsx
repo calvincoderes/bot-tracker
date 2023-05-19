@@ -28,11 +28,6 @@ export const BotForm: React.FC<FormProps> = ({ handleAdd }) => {
         setFormData({ imageUrl: '', name: '' });
     };
 
-    useEffect(() => {
-        console.log('test bot form data', formData)
-    }, [formData])
-
-
     return (
         <FormContainer>
             <div className="form-container">
