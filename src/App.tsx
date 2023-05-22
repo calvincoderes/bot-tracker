@@ -11,7 +11,8 @@ import { BotCard } from './components/BotCard'
 
 
 function App() {
-  const [list, setList] = useState<ListType[]>(JSON.parse(localStorage.getItem('list') || '') || [])
+  const storageItem = JSON.parse(localStorage.getItem('list') ?? '') ?? []
+  const [list, setList] = useState<ListType[]>(storageItem ?? [])
 
   const addBot = (formData: any) => {
     if (!formData.name) {
