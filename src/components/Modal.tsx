@@ -1,48 +1,99 @@
-import ReactDOM from 'react-dom'
-import PropTypes from 'prop-types'
-import { StyledDiv } from "./styles"
-import { CSSTransition } from 'react-transition-group';
+import React, { useState } from 'react';
+import styled from 'styled-components'
 
+type ModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+};
 
-interface Props {
-    popupSettings: {
-        isOpen: boolean,
-        message: string
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    const handleClose = () => {
+        setIsAnimating(true);
+        setTimeout(() => {
+            setIsAnimating(false);
+            onClose();
+        }, 300); // Adjust the duration as needed
+    };
+
+    if (!isOpen && !isAnimating) {
+        return null;
     }
-    setPopupSettings(): void,
-}
 
-export const Modal: React.FC<Props> = ({ popupSettings, setPopupSettings }) => {
-
-    const { isOpen, message } = popupSettings
-
-    const onCloseHandle = () => {
-        setPopupSettings((prev => ({ ...prev, isOpen: false })))
-        return false;
-    }
-
-    return isOpen && ReactDOM.createPortal(
-        <CSSTransition
-            in={isOpen}
-            timeout={300}
-            classNames='popup-content'
-            unmountOnExit
-        >
-            <StyledDiv>
-                <div className="popup-overlay" onClick={onCloseHandle}>
-                    <div className="popup-content" onClick={e => e.stopPropagation()}>
-                        <span className="popup-close" onClick={onCloseHandle}>&times;</span>
-                        {message}
-                    </div>
+    return (
+        <StyledModalWrapper>
+            <div className={`modal ${isOpen ? 'open' : ''}`}>
+                <button className="modal-close" onClick={handleClose}>
+                    X
+                </button>
+                <div className="modal-content">
+                    {children}
                 </div>
-            </StyledDiv>
-        </CSSTransition>,
-        document.body
-    )
-}
+                <div className={`modal-overlay ${isAnimating ? 'fade' : ''}`} onClick={handleClose} />
+            </div>
+        </StyledModalWrapper>
+    );
+};
 
-Modal.propTypes = {
-    popupSettings: PropTypes.any,
-    setPopupSettings: PropTypes.any
 
-}
+const StyledModalWrapper = styled.div`
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    background: #a3a3a36e;
+    top: 0;
+    left: 0;
+
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 999;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .modal.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        min-width: 40vw;
+        min-height: 20vh;
+    }
+    
+    .modal-close {
+        display: block;
+        position: relative;
+        float: right;
+        font-size: 10pt;
+        background: #ff6565e8;
+        color: white;
+    }
+    
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(8px);
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .modal-overlay.fade {
+        opacity: 1;
+    }
+`

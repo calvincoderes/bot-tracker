@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import styled from 'styled-components'
 
 import { ListType } from './types'
@@ -8,11 +8,15 @@ import './App.css'
 
 import { BotForm } from './components/BotForm'
 import { BotCard } from './components/BotCard'
+import { Modal } from './components/Modal'
 
 
 function App() {
-  const storageItem = JSON.parse(localStorage.getItem('list') ?? '') ?? []
-  const [list, setList] = useState<ListType[]>(storageItem ?? [])
+  const storageItem = localStorage.getItem('list') ?? ''
+  console.log(storageItem.length)
+  const [list, setList] = useState<ListType[]>(storageItem.length > 0 ? JSON.parse(storageItem) : [])
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [toUpdate, setToUpdate] = useState(0)
 
   const addBot = (formData: any) => {
     if (!formData.name) {
@@ -25,12 +29,17 @@ function App() {
       ...formData,
       id: (list.length - 1) + 1,
     }
-    setList(prev => ([...prev, { ...newItem }]))
+    const newList: ListType[] = [...list, {...newItem}]
+    setList([...newList])
+    // setList(prev => ([...prev, { ...newItem }]))
+    localStorage.setItem('list', JSON.stringify(newList))
+
   }
 
   const removeBot = (id: number) => {
     const newList: ListType[] = list.filter(item => item.id !== id) || [];
     setList([...newList])
+    localStorage.setItem('list', JSON.stringify(newList))
   }
 
   const updateBot = (formData: ListType) => {
@@ -43,39 +52,60 @@ function App() {
       return item
     }) || [];
     setList([...newList])
+    localStorage.setItem('list', JSON.stringify(newList))
   }
 
   const getBotDetails = (id: number) => {
     return list.filter(item => item.id !== id) || {}
   }
+
+  const handleModalToggle = () => {
+    setIsModalOpen(prev => !prev)
+  }
+
+  const handleUpdate = (id: number) => {
+    setToUpdate(id)
+    setIsModalOpen(true)
+  }
   
 
-  useEffect(() => {
-    // save to localstorage
-      localStorage.setItem('list', JSON.stringify(list))
-  }, [list])
 
   return (
-    <>
-      <StyledContainer className='main-container'>
-        <StyledH1>Bot Tracker</StyledH1>
-        <StyledForm>
+    <StyledRootWrapper className='root-fragment'>
+      <StyledBodyWrapper className='modal-fragment'>
+        <Modal isOpen={isModalOpen} onClose={handleModalToggle}>
+          <h3>Update</h3>
           <BotForm handleAdd={addBot} />
-        </StyledForm>
-        <StyledList>
+        </Modal>
+      </StyledBodyWrapper>
+        <StyledContainer className='main-container'>
+          <StyledH1>Bot Tracker</StyledH1>
+          <StyledForm>
+            <BotForm handleAdd={addBot} />
+          </StyledForm>
+          <StyledList>
             {list && list.map(data => (
-              <div style={{width: '100%'}}>
-                <BotCard listData={data} handleDelete={removeBot} />
+              <div style={{ width: '100%' }}>
+                <BotCard listData={data} handleDelete={removeBot} handleUpdate={handleUpdate} />
               </div>
             ))}
             {list.length < 1 && (<StyledHeading>No data to show</StyledHeading>)}
-        </StyledList>
-      </StyledContainer>
-    </>
+          </StyledList>
+        </StyledContainer>
+    </StyledRootWrapper>
+
   )
 }
 
 export default App
+
+const StyledRootWrapper = styled.div`
+
+`
+
+const StyledBodyWrapper = styled.div`
+
+`
 
 const StyledContainer = styled.div`
 display: flex;

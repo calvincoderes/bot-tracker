@@ -6,10 +6,11 @@ type PartialList = Partial<ListType>;
 
 interface FormProps {
     handleAdd(formData: PartialList): void
+    toUpdate?: number
 }
 
 
-export const BotForm: React.FC<FormProps> = ({ handleAdd }) => {
+export const BotForm: React.FC<FormProps> = ({ handleAdd, toUpdate }) => {
     const [formData, setFormData] = useState<PartialList>({
         imageUrl: '',
         name: ''

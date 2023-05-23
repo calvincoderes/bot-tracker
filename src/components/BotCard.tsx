@@ -7,14 +7,20 @@ type PartialList = Partial<ListType>;
 interface Props {
     listData: ListType
     handleDelete(id: number): void,
+    handleUpdate(id: number): void,
 }
 
 
-export const BotCard: React.FC<Props> = ({ listData, handleDelete }) => {
+export const BotCard: React.FC<Props> = ({ listData, handleDelete, handleUpdate }) => {
     const handleClick = () => {
         const {id} = listData
         handleDelete(id);
     };
+
+    const handleUpdateClick = () => {
+        const {id} = listData
+        handleUpdate(id)
+    }
 
     return (
         <FormContainer>
@@ -25,7 +31,7 @@ export const BotCard: React.FC<Props> = ({ listData, handleDelete }) => {
                 </div>
                 <div className="action"> 
                     <StyledButton style={{background: '#a65252', color: 'white'}} onClick={handleClick}>Delete</StyledButton>
-                    <StyledButton style={{background: '#4aac4a', color: 'white'}} onClick={() => {return}}>Update</StyledButton>
+                    <StyledButton style={{background: '#4aac4a', color: 'white'}} onClick={handleUpdateClick}>Update</StyledButton>
                 </div>
             </div>
         </FormContainer>
